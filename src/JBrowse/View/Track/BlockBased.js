@@ -107,6 +107,10 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         return JSON.parse( this.browser.cookie("track-style-" + this.name ) || '{}' );
     },
 
+    getNS:function(){
+        return "http://www.w3.org/2000/svg";
+    },
+
 
     /**
      * Returns object holding the default configuration for this track
@@ -118,6 +122,8 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             maxFeatureSizeForUnderlyingRefSeq: 250000
         };
     },
+
+
 
     heightUpdate: function(height, blockIndex) {
 
@@ -1163,6 +1169,66 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
         }
     },
 
+    renderScaffoldLabel: function(anchorNode,left,width,label,offset){
+        console.log("rendering label: "+label);
+        console.log("width: "+width);
+        console.log("left: "+left);
+        var svg=document.createElementNS(this.getNS(),"svg");
+        //svg.left = left + "%";
+        svg.left = "100%";
+        svg.width = "100%";
+        svg.height = 20 +"px";
+        svg.style.position = "absolute";
+        anchorNode.appendChild(svg);
+        //// add square
+        var rectObj=document.createElementNS(this.getNS(),"rect");
+        rectObj.setAttribute("y",15);
+        rectObj.setAttribute("x",0);
+        rectObj.setAttribute("width",width+"%");
+        rectObj.setAttribute("height",20);
+        rectObj.style.fill="white";
+        rectObj.style.stroke ="red";
+        rectObj.style.position="absolute";
+        svg.appendChild(rectObj);
+
+        // add text box
+        var numberText=document.createElementNS(this.getNS(),"text");
+        numberText.setAttribute("y",9);
+        numberText.setAttribute("x",5);
+        numberText.setAttribute("width",(width-10)+"%");
+        numberText.setAttribute("height",16);
+        numberText.style.position="absolute";
+        numberText.setAttribute("font-family","helvetica");
+        numberText.setAttribute("font-size","smaller");
+        if(offset>0){
+            numberText.setAttribute("text-anchor","start");
+            numberText.textContent = "125,123";
+        }
+        else{
+            numberText.textContent = "80,128";
+        }
+        svg.appendChild(numberText);
+
+        // add text box
+        var textObj=document.createElementNS(this.getNS(),"text");
+        textObj.setAttribute("y",30);
+        textObj.setAttribute("x",5);
+        textObj.setAttribute("width",(width-10)+"%");
+        textObj.setAttribute("height",16);
+        textObj.style.position="absolute";
+        textObj.setAttribute("font-family","monospace");
+        textObj.textContent = label
+
+        svg.appendChild(textObj);
+        //var textWidth = label.length * 5 ;
+        //var nextWidth = (svg.clientWidth + 1) + "px";
+        //svg.style.left='calc('+left+'% - '+nextWidth+')';
+        if(offset>0){
+            svg.style.left -= offset;
+        }
+        //svg.style.left =
+    },
+
     renderRegionHighlight: function( args, highlight, color, label, rlabel ) {
         // do nothing if the highlight does not overlap this region
         if( highlight.start > args.rightBase || highlight.end < args.leftBase )
@@ -1198,7 +1264,7 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
                             }, args.block.domNode );
 
         if( label ) {
-            /* 
+            /*
             //  vertical text, has bugs
             if( trimLeft <= 0 ) {
                 domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+'%',transformOrigin: left+'%'+' top' }, innerHTML: label }, args.block.domNode);
@@ -1206,15 +1272,20 @@ return declare( [Component,DetailsMixin,FeatureFiltererMixin,Destroyable],
             if( trimRight <= 0 ) {
                 domConstruct.create('div', { className:'verticaltext', style: { top: '50px', left: left+width+'%',transformOrigin: left+width+'%'+' top' }, innerHTML: rlabel }, args.block.domNode);
             }*/
+            var multiplier = 3.0 ;
             if( trimLeft <= 0 ) {
-                var d1=domConstruct.create('div', { className:'horizontaltext', style: { top: '15px', left: left+'%' }, innerHTML: label }, args.block.domNode);
+                var textWidth = label.length * multiplier ;
+                this.renderScaffoldLabel(highlight,left,textWidth,label);
+                //var d1=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+'%' }, innerHTML: label }, args.block.domNode);
             }
             if( trimRight <= 0 ) {
-                var d2=domConstruct.create('div', { className:'horizontaltext', style: { top: '15px', left: left+width+'%' }, innerHTML: rlabel }, args.block.domNode);
+                var textWidth = rlabel.length * multiplier ;
+                this.renderScaffoldLabel(highlight,left,textWidth,rlabel,textWidth+left+5);
+                //var d2=domConstruct.create('div', { className:'horizontaltext', style: { background: 'white', zIndex: 1000, left: left+width+'%' }, innerHTML: rlabel }, args.block.domNode);
             }
 
-            var textWidth = (d1.clientWidth + 1) + "px";
-            d1.style.left='calc('+left+'% - '+textWidth+')';
+            //var textWidth = (d1.clientWidth + 1) + "px";
+            //d1.style.left='calc('+left+'% - '+textWidth+')';
         }
     }
 
