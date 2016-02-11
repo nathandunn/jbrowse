@@ -2920,6 +2920,8 @@ createNavBox: function( parent ) {
         locationWidth = '25ex';
     }
 
+    console.log('bbb: '+thisB.refSeq);
+
     var searchbox = dojo.create('span', {
         'id':'search-box',
         'class': locationMode
@@ -2928,6 +2930,8 @@ createNavBox: function( parent ) {
     // if we have fewer than 30 ref seqs, or `refSeqDropdown: true` is
     // set in the config, then put in a dropdown box for selecting
     // reference sequences
+
+
     var refSeqSelectBoxPlaceHolder = dojo.create('span', {id:'search-refseq'}, searchbox );
 
     // make the location search box
