@@ -1,5 +1,4 @@
 ///<reference path="AbstractProjection.ts"/>
-///<reference path="node-0.12.d.ts" />
 ///<reference path="collections.ts" />
 
 

@@ -5,9 +5,9 @@ module Projection {
 
     export class MultisequenceProjection extends AbstractProjection {
 
-        //var sequenceDiscontinuousProjectionMap:
 
         constructor(){
+            super()
 
         }
 

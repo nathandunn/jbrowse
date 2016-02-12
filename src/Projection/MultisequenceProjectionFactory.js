@@ -10,8 +10,6 @@ var Projection;
          */
         MultisequenceProjectionFactory.getProjection = function (name) {
             var projection = new Projection.MultisequenceProjection();
-            projection.name = name ;
-
             return projection;
         };
         return MultisequenceProjectionFactory;

@@ -1,5 +1,4 @@
 ///<reference path="AbstractProjection.ts"/>
-///<reference path="node-0.12.d.ts" />
 ///<reference path="collections.ts" />
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];

@@ -9,8 +9,8 @@ var Projection;
 (function (Projection) {
     var MultisequenceProjection = (function (_super) {
         __extends(MultisequenceProjection, _super);
-        //var sequenceDiscontinuousProjectionMap:
         function MultisequenceProjection() {
+            _super.call(this);
         }
         MultisequenceProjection.prototype.projectValue = function (input) {
             // abcd
