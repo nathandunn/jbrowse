@@ -14,6 +14,9 @@ var Coordinate = (function () {
         //var returnString = 'whele that is workingish' ;
         //return returnString ;
     };
+    Coordinate.prototype.getLength = function () {
+        return Math.abs(this.max - this.min);
+    };
     return Coordinate;
 })();
 //# sourceMappingURL=Coordinate.js.map

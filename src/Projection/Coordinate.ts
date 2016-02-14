@@ -1,9 +1,9 @@
 ///<reference path="ProjectionSequence.ts"/>
 
-class Coordinate{
-    min: number;
-    max: number;
-    sequence: Projection.ProjectionSequence;
+class Coordinate {
+    min:number;
+    max:number;
+    sequence:Projection.ProjectionSequence;
 
     constructor(min:number, max:number) {
         this.min = min;
@@ -17,9 +17,13 @@ class Coordinate{
     //}
 
 
-    static spitOutSomething():void{
+    static spitOutSomething():void {
         console.log("asdfasdfasdfa sdfasdlfkj ");
         //var returnString = 'whele that is workingish' ;
         //return returnString ;
+    }
+
+    getLength():number {
+        return Math.abs(this.max - this.min)
     }
 }

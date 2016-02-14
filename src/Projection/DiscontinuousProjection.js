@@ -11,27 +11,27 @@ define(["require", "exports", "collections/sorted-map"], function (require, expo
         __extends(DiscontinuousProjection, _super);
         function DiscontinuousProjection() {
             //var t = new collections.BSTree();
-            minMap = new SortedMap();
-            maxMap = new SortedMap();
+            this.minMap = new SortedMap();
+            this.maxMap = new SortedMap();
         }
         // TODO: does typesafe have these types of structures?
         //TreeMap<number, Coordinate> minMap = new TreeMap<>()
         //TreeMap<number, Coordinate> maxMap = new TreeMap<>()
         DiscontinuousProjection.prototype.projectValue = function (input) {
-            if (!minMap && !maxMap) {
+            if (!this.minMap && !this.maxMap) {
                 return input;
             }
             if (input == null) {
-                return this.UNMAPPED_VALUE;
+                return AbstractProjection.UNMAPPED_VALUE;
             }
-            floorMinKey = this.minMap.floorKey(input);
-            ceilMinKey = this.minMap.ceilingKey(input);
-            floorMaxKey = this.maxMap.floorKey(input);
-            ceilMaxKey = this.maxMap.ceilingKey(input);
+            var floorMinKey = this.minMap.floorKey(input);
+            var ceilMinKey = this.minMap.ceilingKey(input);
+            var floorMaxKey = this.maxMap.floorKey(input);
+            var ceilMaxKey = this.maxMap.ceilingKey(input);
             //        log.debug "input ${input} minKey ${floorMinKey}-${ceilMinKey}"
             //        log.debug "input ${input} maxKey ${floorMaxKey}-${ceilMaxKey}"
             if (floorMinKey == null || ceilMaxKey == null) {
-                return this.UNMAPPED_VALUE;
+                return AbstractProjection.UNMAPPED_VALUE;
             }
             // if is a hit for min and no max hit, then it is the left-most
             if (floorMinKey == ceilMinKey) {
@@ -40,7 +40,7 @@ define(["require", "exports", "collections/sorted-map"], function (require, expo
                 }
                 else {
                     //                return input - floorMaxKey
-                    return projectValue(floorMaxKey) + 1;
+                    return this.projectValue(floorMaxKey) + 1;
                 }
             }
             // this is the left-most still
@@ -49,18 +49,18 @@ define(["require", "exports", "collections/sorted-map"], function (require, expo
             }
             // if we are at the max border
             if (floorMaxKey == ceilMaxKey) {
-                return input - floorMinKey + projectValue(floorMinKey);
+                return input - floorMinKey + this.projectValue(floorMinKey);
             }
             // if we are inbetween a ceiling max and floor min, then we are in a viable block
             if (input > floorMinKey && input < ceilMaxKey && ceilMinKey >= ceilMaxKey) {
-                return input - floorMinKey + projectValue(floorMinKey);
+                return input - floorMinKey + this.projectValue(floorMinKey);
             }
             // if we are inbetween for the last large one on the RHS
             if (floorMaxKey != ceilMaxKey && ceilMinKey == null) {
-                return input - floorMinKey + projectValue(floorMinKey);
+                return input - floorMinKey + this.projectValue(floorMinKey);
             }
             //        log.debug "${input} unable to find match, returning UNMAPPED"
-            return UNMAPPED_VALUE;
+            return AbstractProjection.UNMAPPED_VALUE;
         };
         DiscontinuousProjection.prototype.projectReverseValue = function (input) {
             return null;
@@ -68,39 +68,40 @@ define(["require", "exports", "collections/sorted-map"], function (require, expo
         DiscontinuousProjection.prototype.projectSequences = function (inputSequence, min, max, offset) {
             return null;
         };
-        DiscontinuousProjection.prototype.getLength = function () {
-            return null;
-        };
-        DiscontinuousProjection.prototype.clear = function () {
-            return null;
-        };
+        //getLength():number {
+        //    return null;
+        //}
+        //clear():number {
+        //    return null;
+        //}
         DiscontinuousProjection.prototype.projectCoordinate = function (min, max) {
-            return new Coordinate(this.projectValue(min), this.projectValue(max), this.sequence);
+            //return new Coordinate(this.projectValue(min), this.projectValue(max), this.sequence);
+            return new Coordinate(this.projectValue(min), this.projectValue(max));
         };
         DiscontinuousProjection.prototype.projectReverseCoordinate = function (min, max) {
-            newMin = projectReverseValue(min);
-            newMax = projectReverseValue(max);
+            var newMin = this.projectReverseValue(min);
+            var newMax = this.projectReverseValue(max);
             if (newMin < 0 && newMax < 0)
                 return null;
         };
         DiscontinuousProjection.prototype.getOriginalLength = function () {
-            return maxMap.values().last().max;
+            return this.maxMap.values().last().max;
         };
         DiscontinuousProjection.prototype.getBufferedLength = function (buffer) {
-            number = number ? number : 1;
-            return length + buffer * (size() - 1);
+            var number = number ? number : 1;
+            return length + buffer * (this.size() - 1);
         };
         DiscontinuousProjection.prototype.getLength = function () {
-            returnValue = 0;
-            iter = minMap.values();
+            var returnValue = 0;
+            var iter = this.minMap.values();
             //while(iter.hasNext()){
             //    Coordinate coordinate = iter.next().value();
             //    returnValue += coordinate.length;
             //}
-            for (var _i = 0, _a = minMap.keys(); _i < _a.length; _i++) {
-                k = _a[_i];
-                coordinate = this.minMap.get(k);
-                returnValue += coordinate.length;
+            for (var _i = 0, _a = this.minMap.keys(); _i < _a.length; _i++) {
+                var k = _a[_i];
+                var coordinate = this.minMap.get(k);
+                returnValue += coordinate.getLength();
             }
             //for (var k in iter) {
             //    var value = minMap[key];
@@ -111,15 +112,17 @@ define(["require", "exports", "collections/sorted-map"], function (require, expo
             //}
             return returnValue;
         };
-        DiscontinuousProjection.prototype.projectSequence = function (inputSequence, minCoordinate, maxCoordinate) {
-            projectSequence(inputSequence, minCoordinate, maxCoordinate, 0);
-        };
+        //projectSequence(inputSequence:string, minCoordinate:number, maxCoordinate:number):string {
+        //    this.projectSequence(inputSequence, minCoordinate, maxCoordinate, 0);
+        //}
         DiscontinuousProjection.prototype.projectSequence = function (inputSequence, minCoordinate, maxCoordinate, offset) {
             var returnSequence = "";
             //Iterator<Coordinate> minKeyIterator = this.minMap.values().iterator();
             var minKeyIterator = this.minMap.values().iterator();
-            var minCoordinate = minCoordinate >= 0 ? minCoordinate : 0;
-            var maxCoordinate = maxCoordinate >= 0 ? maxCoordinate : inputSequence.length();
+            //var minCoordinate:Coordinate = minCoordinate >= 0 ? minCoordinate : 0;
+            minCoordinate = minCoordinate >= 0 ? minCoordinate : 0;
+            //var maxCoordinate:Coordinate = maxCoordinate >= 0 ? maxCoordinate : inputSequence.length();
+            maxCoordinate = maxCoordinate >= 0 ? maxCoordinate : inputSequence.length;
             //console.log "minCoordinate = ${minCoordinate}"
             //console.log "maxCoordinate = ${maxCoordinate}"
             //console.log "offset = ${offset}"
@@ -172,10 +175,10 @@ define(["require", "exports", "collections/sorted-map"], function (require, expo
             return this.minMap.size();
         };
         DiscontinuousProjection.prototype.clear = function () {
-            var returnValue = minMap.size();
+            var returnValue = this.minMap.size();
             //        assert returnValue == maxMap.size()
-            minMap.clear();
-            maxMap.clear();
+            this.minMap.clear();
+            this.maxMap.clear();
             return returnValue;
         };
         return DiscontinuousProjection;

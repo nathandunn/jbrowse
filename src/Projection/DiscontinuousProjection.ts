@@ -2,7 +2,7 @@
 ///<reference path="collections.ts" />
 
 
-//import collections = require('collections');
+import collections = require('collections');
 import SortedMap = require("collections/sorted-map");
 
 //var LruMap = require("collections/lru-map");
@@ -15,8 +15,8 @@ class DiscontinuousProjection extends AbstractProjection {
 
     constructor() {
         //var t = new collections.BSTree();
-        minMap = new SortedMap<number,Coordinate>();
-        maxMap = new SortedMap<number,Coordinate>();
+        this.minMap = new SortedMap<number,Coordinate>();
+        this.maxMap = new SortedMap<number,Coordinate>();
     }
 
 
@@ -25,25 +25,25 @@ class DiscontinuousProjection extends AbstractProjection {
     //TreeMap<number, Coordinate> maxMap = new TreeMap<>()
 
     projectValue(input:number):number {
-        if (!minMap && !maxMap) {
+        if (!this.minMap && !this.maxMap) {
             return input;
         }
 
         if (input == null) {
-            return this.UNMAPPED_VALUE;
+            return AbstractProjection.UNMAPPED_VALUE;
         }
 
-        floorMinKey = this.minMap.floorKey(input);
-        ceilMinKey = this.minMap.ceilingKey(input);
+        var floorMinKey:number = this.minMap.floorKey(input);
+        var ceilMinKey:number = this.minMap.ceilingKey(input);
 
-        floorMaxKey = this.maxMap.floorKey(input);
-        ceilMaxKey = this.maxMap.ceilingKey(input);
+        var floorMaxKey:number = this.maxMap.floorKey(input);
+        var ceilMaxKey:number = this.maxMap.ceilingKey(input);
 
 //        log.debug "input ${input} minKey ${floorMinKey}-${ceilMinKey}"
 //        log.debug "input ${input} maxKey ${floorMaxKey}-${ceilMaxKey}"
 
         if (floorMinKey == null || ceilMaxKey == null) {
-            return this.UNMAPPED_VALUE;
+            return AbstractProjection.UNMAPPED_VALUE;
         }
 
         // if is a hit for min and no max hit, then it is the left-most
@@ -52,7 +52,7 @@ class DiscontinuousProjection extends AbstractProjection {
                 return 0
             } else {
 //                return input - floorMaxKey
-                return projectValue(floorMaxKey) + 1
+                return this.projectValue(floorMaxKey) + 1
             }
         }
 
@@ -64,21 +64,21 @@ class DiscontinuousProjection extends AbstractProjection {
 
         // if we are at the max border
         if (floorMaxKey == ceilMaxKey) {
-            return input - floorMinKey + projectValue(floorMinKey)
+            return input - floorMinKey + this.projectValue(floorMinKey)
         }
 
         // if we are inbetween a ceiling max and floor min, then we are in a viable block
         if (input > floorMinKey && input < ceilMaxKey && ceilMinKey >= ceilMaxKey) {
-            return input - floorMinKey + projectValue(floorMinKey)
+            return input - floorMinKey + this.projectValue(floorMinKey)
         }
 
         // if we are inbetween for the last large one on the RHS
         if (floorMaxKey != ceilMaxKey && ceilMinKey == null) {
-            return input - floorMinKey + projectValue(floorMinKey)
+            return input - floorMinKey + this.projectValue(floorMinKey)
         }
 
 //        log.debug "${input} unable to find match, returning UNMAPPED"
-        return UNMAPPED_VALUE
+        return AbstractProjection.UNMAPPED_VALUE
     }
 
     projectReverseValue(input:number):number {
@@ -89,43 +89,44 @@ class DiscontinuousProjection extends AbstractProjection {
         return null;
     }
 
-    getLength():number {
-        return null;
-    }
+    //getLength():number {
+    //    return null;
+    //}
 
-    clear():number {
-        return null;
-    }
+    //clear():number {
+    //    return null;
+    //}
 
     projectCoordinate(min:number, max:number):Coordinate {
-        return new Coordinate(this.projectValue(min), this.projectValue(max), this.sequence);
+        //return new Coordinate(this.projectValue(min), this.projectValue(max), this.sequence);
+        return new Coordinate(this.projectValue(min), this.projectValue(max));
     }
 
     projectReverseCoordinate(min:number, max:number):Coordinate {
-        newMin = projectReverseValue(min);
-        newMax = projectReverseValue(max);
+        var newMin:number = this.projectReverseValue(min);
+        var newMax:number = this.projectReverseValue(max);
         if (newMin < 0 && newMax < 0) return null;
     }
 
     getOriginalLength():number {
-        return maxMap.values().last().max
+        return this.maxMap.values().last().max
     }
 
     getBufferedLength(buffer:number):number {
-        number = number ? number : 1;
-        return length + buffer * (size() - 1)
+        var number:number = number ? number : 1;
+        return length + buffer * (this.size() - 1)
     }
 
     getLength():number {
-        returnValue = 0;
-        iter = minMap.values();
+        var returnValue:number = 0;
+        var iter = this.minMap.values();
         //while(iter.hasNext()){
         //    Coordinate coordinate = iter.next().value();
         //    returnValue += coordinate.length;
         //}
-        for (k of minMap.keys()) {
-            coordinate = this.minMap.get(k)
-            returnValue += coordinate.length;
+        for (var k of this.minMap.keys()) {
+            var coordinate:Coordinate = this.minMap.get(k)
+            returnValue += coordinate.getLength();
             //statement
         }
         //for (var k in iter) {
@@ -138,16 +139,18 @@ class DiscontinuousProjection extends AbstractProjection {
         return returnValue;
     }
 
-    projectSequence(inputSequence:string, minCoordinate:number, maxCoordinate:number):string {
-        projectSequence(inputSequence, minCoordinate, maxCoordinate, 0);
-    }
+    //projectSequence(inputSequence:string, minCoordinate:number, maxCoordinate:number):string {
+    //    this.projectSequence(inputSequence, minCoordinate, maxCoordinate, 0);
+    //}
 
     projectSequence(inputSequence:string, minCoordinate:number, maxCoordinate:number, offset:number):string {
         var returnSequence:string = "";
         //Iterator<Coordinate> minKeyIterator = this.minMap.values().iterator();
-        var minKeyIterator:Iterator<number> = this.minMap.values().iterator();
-        var minCoordinate:Coordinate = minCoordinate >= 0 ? minCoordinate : 0;
-        var maxCoordinate:Coordinate = maxCoordinate >= 0 ? maxCoordinate : inputSequence.length();
+        var minKeyIterator = this.minMap.values().iterator();
+        //var minCoordinate:Coordinate = minCoordinate >= 0 ? minCoordinate : 0;
+        minCoordinate = minCoordinate >= 0 ? minCoordinate : 0;
+        //var maxCoordinate:Coordinate = maxCoordinate >= 0 ? maxCoordinate : inputSequence.length();
+        maxCoordinate = maxCoordinate >= 0 ? maxCoordinate : inputSequence.length;
         //console.log "minCoordinate = ${minCoordinate}"
         //console.log "maxCoordinate = ${maxCoordinate}"
         //console.log "offset = ${offset}"
@@ -214,10 +217,10 @@ class DiscontinuousProjection extends AbstractProjection {
     }
 
     clear():number {
-        var returnValue:number = minMap.size();
+        var returnValue:number = this.minMap.size();
 //        assert returnValue == maxMap.size()
-        minMap.clear();
-        maxMap.clear();
+        this.minMap.clear();
+        this.maxMap.clear();
         return returnValue;
     }
 }
