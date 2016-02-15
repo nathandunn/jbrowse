@@ -1,12 +1,13 @@
-define( [ 'dojo/_base/declare',
-          'dojo/_base/lang',
-          'dojo/request',
-          'dojo/promise/all',
-          'dojo/Deferred',
-          'JBrowse/Store/SeqFeature',
-          'JBrowse/Util',
-          'JBrowse/Model/SimpleFeature',
-          'JBrowse/Digest/Crc32'
+define( [
+            'dojo/_base/declare',
+            'dojo/_base/lang',
+            'dojo/request',
+            'dojo/promise/all',
+            'dojo/Deferred',
+            'JBrowse/Store/SeqFeature',
+            'JBrowse/Util',
+            'JBrowse/Model/SimpleFeature',
+            'JBrowse/Digest/Crc32'
         ],
         function(
             declare,
@@ -23,11 +24,11 @@ define( [ 'dojo/_base/declare',
 return declare( SeqFeatureStore,
 {
 
-/**
- * Storage backend for sequences broken up into chunks, stored and
- * served as static text files.
- * @constructs
- */
+    /**
+     * Storage backend for sequences broken up into chunks, stored and
+     * served as static text files.
+     * @constructs
+     */
     constructor: function(args) {
         this.chunkCache   = {};
         this.compress     = args.compress;
@@ -45,6 +46,8 @@ return declare( SeqFeatureStore,
         errorCallback = errorCallback || function(e) { console.error(e); };
 
         var refname = query.ref;
+        var reverse = this.browser.config.reverseComplement;
+
         if( ! this.browser.compareReferenceNames( this.refSeq.name, refname ) )
             refname = this.refSeq.name;
 
@@ -73,8 +76,18 @@ return declare( SeqFeatureStore,
             }
         );
 
-        var firstChunk = Math.floor( Math.max(0,query.start) / chunkSize );
-        var lastChunk  = Math.floor( (query.end - 1)         / chunkSize );
+        var firstChunk;
+        var lastChunk;
+        console.log(this.refSeq.length);
+        if(reverse) {
+            firstChunk = Math.floor( Math.max(0,this.refSeq.length-query.end) / chunkSize );
+            lastChunk  = Math.floor( (this.refSeq.length-query.start)         / chunkSize );
+        }
+        else {
+            firstChunk = Math.floor( Math.max(0,query.start) / chunkSize );
+            lastChunk  = Math.floor( (query.end - 1)         / chunkSize );
+        }
+        console.log(firstChunk,lastChunk,this.refSeq.length-query.end,this.refSeq.length-query.start)
 
         var error;
         var fetches = [];
