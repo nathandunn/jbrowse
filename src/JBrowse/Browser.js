@@ -848,6 +848,19 @@ initView: function() {
                     }).show();
                 }
             }));
+        
+            this.addGlobalMenuItem( 'view', new dijitCheckedMenuItem({
+                label: 'Reverse complement view',
+                id: 'menubar_revcomp',
+                title: 'Reverse complement view',
+                checked: false,
+                onClick: function() {
+                    var ret = thisObj.view.visibleRegion();
+                    thisObj.config.reverseComplement = this.get("checked");
+                    thisObj.navigateTo({ ref: ret.ref, start: Math.round(thisObj.refSeq.length - ret.end), end: Math.round(thisObj.refSeq.length - ret.start)});
+                    thisObj.view.redrawTracks();
+                }
+            }));
 
             this.renderGlobalMenu( 'view', {text: 'View'}, menuBar );
 

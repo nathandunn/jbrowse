@@ -1,13 +1,12 @@
-define( [
-            'dojo/_base/declare',
-            'dojo/_base/lang',
-            'dojo/request',
-            'dojo/promise/all',
-            'dojo/Deferred',
-            'JBrowse/Store/SeqFeature',
-            'JBrowse/Util',
-            'JBrowse/Model/SimpleFeature',
-            'JBrowse/Digest/Crc32'
+define( [ 'dojo/_base/declare',
+          'dojo/_base/lang',
+          'dojo/request',
+          'dojo/promise/all',
+          'dojo/Deferred',
+          'JBrowse/Store/SeqFeature',
+          'JBrowse/Util',
+          'JBrowse/Model/SimpleFeature',
+          'JBrowse/Digest/Crc32'
         ],
         function(
             declare,
@@ -24,11 +23,11 @@ define( [
 return declare( SeqFeatureStore,
 {
 
-    /**
-     * Storage backend for sequences broken up into chunks, stored and
-     * served as static text files.
-     * @constructs
-     */
+/**
+ * Storage backend for sequences broken up into chunks, stored and
+ * served as static text files.
+ * @constructs
+ */
     constructor: function(args) {
         this.chunkCache   = {};
         this.compress     = args.compress;
@@ -78,7 +77,6 @@ return declare( SeqFeatureStore,
 
         var firstChunk;
         var lastChunk;
-        console.log(this.refSeq.length);
         if(reverse) {
             firstChunk = Math.floor( Math.max(0,this.refSeq.length-query.end) / chunkSize );
             lastChunk  = Math.floor( (this.refSeq.length-query.start)         / chunkSize );
@@ -87,7 +85,6 @@ return declare( SeqFeatureStore,
             firstChunk = Math.floor( Math.max(0,query.start) / chunkSize );
             lastChunk  = Math.floor( (query.end - 1)         / chunkSize );
         }
-        console.log(firstChunk,lastChunk,this.refSeq.length-query.end,this.refSeq.length-query.start)
 
         var error;
         var fetches = [];

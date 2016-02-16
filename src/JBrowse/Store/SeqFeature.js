@@ -195,6 +195,8 @@ return declare( Store,
                           function() {
                               var ret = rev ? Util.revcom( sequence ) : sequence
                               var len = ret.length - ret.trim().length;
+                              // handle corner cases with padding the ref seqs with spaces at ends of chromosomes
+                              // not fully passing tests yet
                               if(len && origstart>1) {
                                   ret = ret.trim() + new Array(len).join(" ");
                               }
