@@ -56,7 +56,11 @@ define([
                     // the block that ends with the most zeroes, or a 5 if no
                     // zeroes
                     var labelNumber = this.chooseLabel(args);
-                    labelNumber = this.multisequenceProjection.projectValue(labelNumber);
+                    //labelNumber = this.multisequenceProjection.projectValue(labelNumber);
+                    //labelNumber = parent.projectValue(this.refSeq,labelNumber);
+                    //labelNumber = window.parent.projectValue("",Number(labelNumber));
+                    //labelNumber = window.parent.projectValue(this.refSeq,labelNumber);
+                    labelNumber = window.parent.projectValue(JSON.stringify(this.refSeq),labelNumber);
                     var labelOffset = (leftBase + 1 - labelNumber) * scale / 10;
                     // console.log( leftBase+1, labelNumber, labelOffset );
 
