@@ -45,6 +45,7 @@ return declare( SeqFeatureStore,
         errorCallback = errorCallback || function(e) { console.error(e); };
 
         var refname = query.ref;
+
         if( ! this.browser.compareReferenceNames( this.refSeq.name, refname ) )
             refname = this.refSeq.name;
 

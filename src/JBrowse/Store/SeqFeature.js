@@ -2,9 +2,16 @@ define( [
             'dojo/_base/declare',
             'dojo/_base/lang',
             'JBrowse/Store',
-            'JBrowse/Store/LRUCache'
+            'JBrowse/Store/LRUCache',
+            'JBrowse/Util'
         ],
-        function( declare, lang, Store, LRUCache ) {
+        function(
+            declare,
+            lang,
+            Store,
+            LRUCache,
+            Util
+        ) {
 
 /**
  * Base class for JBrowse data backends that hold sequences and
@@ -170,6 +177,14 @@ return declare( Store,
         while( sequence.length < len )
             sequence += ' ';
 
+        var rev = this.config.reverseComplement||this.browser.config.reverseComplement;
+        var origstart = query.start;
+        if(rev) {
+            var start = Math.max(this.refSeq.length - query.end,0);
+            var end = Math.min(this.refSeq.length - query.start,this.refSeq.length);
+            query.start = start;
+            query.end = end;
+        }
         var thisB = this;
         this.getFeatures( lang.mixin({ reference_sequences_only: true }, query ),
                           function( f ) {
@@ -178,7 +193,14 @@ return declare( Store,
                                   sequence = replaceAt( sequence, f.get('start')-query.start, seq );
                           },
                           function() {
-                              seqCallback( sequence );
+                              var ret = rev ? Util.revcom( sequence ) : sequence
+                              var len = ret.length - ret.trim().length;
+                              // handle corner cases with padding the ref seqs with spaces at ends of chromosomes
+                              // not fully passing tests yet
+                              if(len && origstart>1) {
+                                  ret = ret.trim() + new Array(len).join(" ");
+                              }
+                              seqCallback(ret);
                           },
                           errorCallback
                         );

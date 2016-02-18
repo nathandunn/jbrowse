@@ -1,6 +1,7 @@
 define([
            'dojo/_base/declare',
            'dojo/_base/lang',
+           'dojo/_base/array',
            'dojo/Deferred',
            'dojo/request/xhr',
            'JBrowse/Store/SeqFeature',
@@ -14,6 +15,7 @@ define([
        function(
            declare,
            lang,
+           array,
            Deferred,
            xhr,
            SeqFeatureStore,
@@ -241,9 +243,14 @@ return declare( SeqFeatureStore,
         var thisB = this;
         var startBase  = query.start;
         var endBase    = query.end;
-        var accessors  = data.attrs.accessors(),
+        var accessors  = data.attrs.accessors();
+        var rev = this.config.reverseComplement||this.browser.config.reverseComplement;
+        if(rev) {
+            startBase = Math.max(this.refSeq.length - query.end,0);
+            endBase = Math.min(this.refSeq.length - query.start,this.refSeq.length);
+        }
         /** @inner */
-        featCallBack = function( feature, path ) {
+        var featCallBack = function( feature, path ) {
             // the unique ID is a stringification of the path in the
             // NCList where the feature lives; it's unique across the
             // top-level NCList (the top-level NCList covers a
@@ -253,6 +260,27 @@ return declare( SeqFeatureStore,
             if (! feature.decorated)  {
                 var uniqueID = path.join(",");
                 thisB._decorate_feature( accessors, feature, uniqueID );
+            }
+            if( rev ) {
+                var s = feature.get('start');
+                var e = feature.get('end');
+                feature.set('end', thisB.refSeq.length - s);
+                feature.set('start', thisB.refSeq.length - e);
+                feature.set('strand', -feature.get('strand'));
+                array.forEach(feature.get('subfeatures'), function(subfeat) {
+                    var ss = subfeat.get('start');
+                    var se = subfeat.get('end');
+                    subfeat.set('end', thisB.refSeq.length-ss);
+                    subfeat.set('start', thisB.refSeq.length-se);
+                    subfeat.set('strand', -subfeat.get('strand'));
+                    array.forEach(subfeat.get('subfeatures'), function(subsubfeat) {
+                        var sss = subsubfeat.get('start');
+                        var sse = subsubfeat.get('end');
+                        subsubfeat.set('end', thisB.refSeq.length-sss);
+                        subsubfeat.set('start', thisB.refSeq.length-sse);
+                        subsubfeat.set('strand', -subsubfeat.get('strand'));
+                    });
+                });
             }
             return origFeatCallback( feature );
         };
@@ -264,8 +292,7 @@ return declare( SeqFeatureStore,
     // subfeatures
     _decorate_feature: function( accessors, feature, id, parent ) {
         feature.get = accessors.get;
-        // possibly include set method in decorations? not currently
-        //    feature.set = accessors.set;
+        feature.set = accessors.set; // re-enable set method for revcom
         feature.tags = accessors.tags;
         feature._uniqueID = id;
         feature.id = idfunc;
