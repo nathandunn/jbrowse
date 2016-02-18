@@ -45,7 +45,6 @@ return declare( SeqFeatureStore,
         errorCallback = errorCallback || function(e) { console.error(e); };
 
         var refname = query.ref;
-        var reverse = this.browser.config.reverseComplement;
 
         if( ! this.browser.compareReferenceNames( this.refSeq.name, refname ) )
             refname = this.refSeq.name;
@@ -75,16 +74,8 @@ return declare( SeqFeatureStore,
             }
         );
 
-        var firstChunk;
-        var lastChunk;
-        if(reverse) {
-            firstChunk = Math.floor( Math.max(0,this.refSeq.length-query.end) / chunkSize );
-            lastChunk  = Math.floor( (this.refSeq.length-query.start)         / chunkSize );
-        }
-        else {
-            firstChunk = Math.floor( Math.max(0,query.start) / chunkSize );
-            lastChunk  = Math.floor( (query.end - 1)         / chunkSize );
-        }
+        var firstChunk = Math.floor( Math.max(0,query.start) / chunkSize );
+        var lastChunk  = Math.floor( (query.end - 1)         / chunkSize );
 
         var error;
         var fetches = [];
